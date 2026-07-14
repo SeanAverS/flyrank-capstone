@@ -20,3 +20,6 @@ build/
 
 # vercel
 .vercel
+
+# dev notes
+dev_notes.md
