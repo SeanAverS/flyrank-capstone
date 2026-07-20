@@ -3,6 +3,33 @@
 "use client";
 
 import { useState } from "react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
+
+// rotate pedal knobs 
+function Knob({ label, color }: { label: string; color: string }) {
+  const rotation = useMotionValue(0);
+
+  return (
+    <div className="text-center select-none">
+      <motion.div
+        className="h-12 w-12 rounded-full bg-zinc-900 border-2 border-zinc-700 flex items-center justify-center relative cursor-grab shadow-inner touch-none"
+        style={{ rotate: rotation }}
+        onDrag={(_, info) => {
+          // increase multiplier to turn knob faster
+          rotation.set(rotation.get() + info.delta.x * 2);
+        }}
+        drag
+        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+        dragElastic={0}
+      >
+        <div className="absolute top-1 w-0.5 h-3" style={{ backgroundColor: color }} />
+      </motion.div>
+      <label className="text-[10px] font-bold uppercase tracking-wider block mt-2" style={{ color: color }}>
+        {label}
+      </label>
+    </div>
+  );
+}
 
 export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -46,7 +73,7 @@ export default function Home() {
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
           
           {/* Pedal 1: CHRONO BOOST (Volume/Gain) */}
-          <div className="flex flex-col justify-between rounded-2xl border border-zinc-700 bg-gradient-to-b from-amber-700 to-amber-900 p-5 shadow-2xl text-amber-50">
+          <div className="flex flex-col justify-between rounded-2xl border border-zinc-700 bg-gradient-to-b from-amber-700 to-amber-900 p-5 shadow-2xl text-amber-50 select-none">
             <div>
               <div className="flex flex-col items-center gap-2">
                 <div className={`h-3 w-3 rounded-full transition-all duration-300 ${activePedals.boost ? "bg-red-400 shadow-[0_0_12px_rgba(248,113,113,0.8)]" : "bg-zinc-900"}`} />
@@ -54,20 +81,10 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Knobs Section */}
+            {/* Knobs */}
             <div className="my-8 grid grid-cols-2 gap-4 justify-items-center">
-              <div className="text-center">
-                <div className="h-12 w-12 rounded-full bg-zinc-900 border-2 border-zinc-700 flex items-center justify-center relative cursor-pointer shadow-inner">
-                  <div className="absolute top-1 left-1/2 w-0.5 h-3 bg-amber-400 -translate-x-1/2" />
-                </div>
-                <label className="text-[10px] font-bold uppercase tracking-wider block mt-2 text-amber-200">Gain</label>
-              </div>
-              <div className="text-center">
-                <div className="h-12 w-12 rounded-full bg-zinc-900 border-2 border-zinc-700 flex items-center justify-center relative cursor-pointer shadow-inner">
-                  <div className="absolute top-1 left-1/2 w-0.5 h-3 bg-amber-400 -translate-x-1/2 rotate-45 origin-bottom" />
-                </div>
-                <label className="text-[10px] font-bold uppercase tracking-wider block mt-2 text-amber-200">Level</label>
-              </div>
+              <Knob label="Gain" color="#fcd34d" /> 
+              <Knob label="Level" color="#fcd34d" />
             </div>
 
             {/* Stomp Switch */}
@@ -81,7 +98,7 @@ export default function Home() {
           </div>
 
           {/* Pedal 2: NEON PULSE (Wah / Filter Component) */}
-          <div className="flex flex-col justify-between rounded-2xl border border-zinc-700 bg-gradient-to-b from-cyan-800 to-cyan-950 p-5 shadow-2xl text-cyan-50">
+          <div className="flex flex-col justify-between rounded-2xl border border-zinc-700 bg-gradient-to-b from-cyan-800 to-cyan-950 p-5 shadow-2xl text-cyan-50 select-none">
             <div>
               <div className="flex flex-col items-center gap-2">
                 <div className={`h-3 w-3 rounded-full transition-all duration-300 ${activePedals.filter ? "bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.8)]" : "bg-zinc-900"}`} />
@@ -91,21 +108,11 @@ export default function Home() {
 
             {/* Knobs */}
             <div className="my-8 grid grid-cols-2 gap-4 justify-items-center">
-              <div className="text-center">
-                <div className="h-12 w-12 rounded-full bg-zinc-900 border-2 border-zinc-700 flex items-center justify-center relative cursor-pointer shadow-inner">
-                  <div className="absolute top-1 left-1/2 w-0.5 h-3 bg-cyan-400 -translate-x-1/2 -rotate-45 origin-bottom" />
-                </div>
-                <label className="text-[10px] font-bold uppercase tracking-wider block mt-2 text-cyan-300">Cutoff</label>
-              </div>
-              <div className="text-center">
-                <div className="h-12 w-12 rounded-full bg-zinc-900 border-2 border-zinc-700 flex items-center justify-center relative cursor-pointer shadow-inner">
-                  <div className="absolute top-1 left-1/2 w-0.5 h-3 bg-cyan-400 -translate-x-1/2 rotate-90 origin-bottom" />
-                </div>
-                <label className="text-[10px] font-bold uppercase tracking-wider block mt-2 text-cyan-300">Reso</label>
-              </div>
+              <Knob label="Cutoff" color="#67e8f9" /> {/* Tailwind cyan-300 */}
+              <Knob label="Reso" color="#67e8f9" />
             </div>
 
-            {/* Engage Switxh */}
+            {/* Engage Switch */}
             <div className="flex flex-col items-center mt-auto">
               <button 
                 onClick={() => togglePedal("filter")}
@@ -116,7 +123,7 @@ export default function Home() {
           </div>
 
           {/* Pedal 3: ECHO CAVERN (Delay Effect) */}
-          <div className="flex flex-col justify-between rounded-2xl border border-zinc-700 bg-gradient-to-b from-purple-800 to-purple-950 p-5 shadow-2xl text-purple-50">
+          <div className="flex flex-col justify-between rounded-2xl border border-zinc-700 bg-gradient-to-b from-purple-800 to-purple-950 p-5 shadow-2xl text-purple-50 select-none">
             <div>
               <div className="flex flex-col items-center gap-2">
                 <div className={`h-3 w-3 rounded-full transition-all duration-300 ${activePedals.delay ? "bg-purple-400 shadow-[0_0_12px_rgba(192,132,252,0.8)]" : "bg-zinc-900"}`} />
@@ -126,18 +133,8 @@ export default function Home() {
 
             {/* Knobs */}
             <div className="my-8 grid grid-cols-2 gap-4 justify-items-center">
-              <div className="text-center">
-                <div className="h-12 w-12 rounded-full bg-zinc-900 border-2 border-zinc-700 flex items-center justify-center relative cursor-pointer shadow-inner">
-                  <div className="absolute top-1 left-1/2 w-0.5 h-3 bg-purple-400 -translate-x-1/2" />
-                </div>
-                <label className="text-[10px] font-bold uppercase tracking-wider block mt-2 text-purple-300">Time</label>
-              </div>
-              <div className="text-center">
-                <div className="h-12 w-12 rounded-full bg-zinc-900 border-2 border-zinc-700 flex items-center justify-center relative cursor-pointer shadow-inner">
-                  <div className="absolute top-1 left-1/2 w-0.5 h-3 bg-purple-400 -translate-x-1/2 -rotate-90 origin-bottom" />
-                </div>
-                <label className="text-[10px] font-bold uppercase tracking-wider block mt-2 text-purple-300">Decay</label>
-              </div>
+              <Knob label="Time" color="#d8b4fe" /> 
+              <Knob label="Decay" color="#d8b4fe" />
             </div>
 
             {/* Engage Switch */}
