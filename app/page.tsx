@@ -9,18 +9,28 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 function Knob({ label, color }: { label: string; color: string }) {
   const rotation = useMotionValue(0);
 
+  const adjustKnob = (event: React.MouseEvent<HTMLDivElement>) => {
+    const currentPos = event.currentTarget.getBoundingClientRect();
+
+    // calculate center of knob 
+    const centerX = currentPos.left + currentPos.width / 2;
+    const centerY = currentPos.top + currentPos.height / 2;
+    
+    // adjuster: calculate angle between center of knob and current mouse click (in radians) 
+    const radians = Math.atan2(event.clientY - centerY, event.clientX - centerX);
+    
+    // degree conversion + rotate coordinates so knob top = 0 degrees
+    const degrees = (radians * (180 / Math.PI)) + 90;
+    
+    rotation.set(degrees);
+  };
+
   return (
     <div className="text-center select-none">
       <motion.div
-        className="h-12 w-12 rounded-full bg-zinc-900 border-2 border-zinc-700 flex items-center justify-center relative cursor-grab shadow-inner touch-none"
+        className="h-12 w-12 rounded-full bg-zinc-900 border-2 border-zinc-700 flex items-center justify-center relative cursor-pointer shadow-inner touch-none"
         style={{ rotate: rotation }}
-        onDrag={(_, info) => {
-          // increase multiplier to turn knob faster
-          rotation.set(rotation.get() + info.delta.x * 2);
-        }}
-        drag
-        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0}
+        onClick={adjustKnob} 
       >
         <div className="absolute top-1 w-0.5 h-3" style={{ backgroundColor: color }} />
       </motion.div>
