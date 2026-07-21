@@ -5,10 +5,26 @@
 import { useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 
-// rotate pedal knobs 
-function Knob({ label, color }: { label: string; color: string }) {
+/**
+ * Props for the Knob component.
+ */
+interface KnobProps {
+  /** Text displayed beneath the knob. */
+  label: string;
+  /** Color of the knob line. */
+  color: string;
+}
+
+/**
+ * Snaps pedal knob line to the clicked position. 
+ */
+function Knob({ label, color }: KnobProps) {
   const rotation = useMotionValue(0);
 
+  /**
+   * Adjust pedal knob to the clicked position. 
+   * @param event - Mouse click event for the knob.
+   */
   const adjustKnob = (event: React.MouseEvent<HTMLDivElement>) => {
     const currentPos = event.currentTarget.getBoundingClientRect();
 
@@ -41,10 +57,18 @@ function Knob({ label, color }: { label: string; color: string }) {
   );
 }
 
+/**
+ * Main view for the pedalboard.
+ */
 export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [activePedals, setActivePedals] = useState({ boost: true, filter: false, delay: true });
 
+  /**
+   * Turn a pedal on or off.
+   * 
+   * @param pedal - Identify which pedal to toggle.
+   */
   const togglePedal = (pedal: "boost" | "filter" | "delay") => {
     setActivePedals(prev => ({ ...prev, [pedal]: !prev[pedal] }));
   };
@@ -118,7 +142,7 @@ export default function Home() {
 
             {/* Knobs */}
             <div className="my-8 grid grid-cols-2 gap-4 justify-items-center">
-              <Knob label="Cutoff" color="#67e8f9" /> {/* Tailwind cyan-300 */}
+              <Knob label="Cutoff" color="#67e8f9" />
               <Knob label="Reso" color="#67e8f9" />
             </div>
 
