@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 
 /**
@@ -13,12 +13,14 @@ interface KnobProps {
   label: string;
   /** Color of the knob line. */
   color: string;
+  /** Callback when knob rotates (value changes) */
+  onValueChange?: (value: number) => void;
 }
 
 /**
  * Snaps pedal knob line to the clicked position. 
  */
-function Knob({ label, color }: KnobProps) {
+function Knob({ label, color, onValueChange }: KnobProps) {
   const rotation = useMotionValue(0);
 
   /**
@@ -39,6 +41,12 @@ function Knob({ label, color }: KnobProps) {
     const degrees = (radians * (180 / Math.PI)) + 90;
     
     rotation.set(degrees);
+    
+    // detect knob rotation 
+    if (onValueChange) {
+      const normalizedValue = ((degrees % 360) + 360) % 360 / 360;
+      onValueChange(normalizedValue);
+    }
   };
 
   return (
@@ -63,6 +71,95 @@ function Knob({ label, color }: KnobProps) {
 export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [activePedals, setActivePedals] = useState({ boost: true, filter: false, delay: true });
+  
+  const audioContext = useRef<AudioContext | null>(null);
+  const oscillator = useRef<OscillatorNode | null>(null);
+  const gainNode = useRef<GainNode | null>(null);
+  const filterNode = useRef<BiquadFilterNode | null>(null);
+  const delayNode = useRef<DelayNode | null>(null);
+  const feedbackNode = useRef<GainNode | null>(null);
+
+  // Setup Audio Nodes
+  useEffect(() => {
+    const ctx = new window.AudioContext();
+    audioContext.current = ctx;
+
+    const source = ctx.createOscillator();
+    source.type = "sawtooth";
+    source.frequency.setValueAtTime(110, ctx.currentTime);
+
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    const delay = ctx.createDelay(1.0);
+    const feedback = ctx.createGain();
+
+    // Set initial values
+    gain.gain.value = 0.5;
+    filter.type = "lowpass";
+    filter.frequency.value = 1000;
+    filter.Q.value = 1;
+    delay.delayTime.value = 0.3;
+    feedback.gain.value = 0.4;
+
+    source.connect(gain);
+    gain.connect(filter);
+    filter.connect(delay);
+    delay.connect(ctx.destination);
+    delay.connect(feedback);
+    feedback.connect(delay);
+
+    oscillator.current = source;
+    gainNode.current = gain;
+    filterNode.current = filter;
+    delayNode.current = delay;
+    feedbackNode.current = feedback;
+
+    return () => {
+      ctx.close();
+    };
+  }, []);
+
+  // Handle Play/Stop
+  useEffect(() => {
+    if (!audioContext.current || !oscillator.current) return;
+    
+    if (isPlaying) {
+      if (audioContext.current.state === "suspended") {
+        audioContext.current.resume();
+      }
+      try {
+        oscillator.current.start();
+      } catch (e) {
+        // Ignored if loop already started
+      }
+    } else {
+      try {
+        oscillator.current.stop();
+      } catch (e) {
+        // Ignored if already stopped
+      }
+      
+      // Recreate oscillator after stopping
+      const newOsc = audioContext.current.createOscillator();
+      newOsc.type = "sawtooth";
+      newOsc.frequency.setValueAtTime(110, audioContext.current.currentTime);
+      if (gainNode.current) {
+        newOsc.connect(gainNode.current);
+      }
+      oscillator.current = newOsc;
+    }
+  }, [isPlaying]);
+
+  // Handle Pedal Bypassing
+  useEffect(() => {
+    if (!audioContext.current) return;
+    const { boost, filter, delay } = activePedals;
+    
+    // Reset gains or disconnect 
+    if (gainNode.current) gainNode.current.gain.value = boost ? 1 : 0;
+    if (filterNode.current) filterNode.current.type = filter ? "lowpass" : "allpass";
+    if (feedbackNode.current) feedbackNode.current.gain.value = delay ? 0.4 : 0;
+  }, [activePedals]);
 
   /**
    * Turn a pedal on or off.
@@ -117,7 +214,7 @@ export default function Home() {
 
             {/* Knobs */}
             <div className="my-8 grid grid-cols-2 gap-4 justify-items-center">
-              <Knob label="Gain" color="#fcd34d" /> 
+              <Knob label="Gain" color="#fcd34d" onValueChange={(v) => gainNode.current && (gainNode.current.gain.value = v)} /> 
               <Knob label="Level" color="#fcd34d" />
             </div>
 
@@ -142,8 +239,8 @@ export default function Home() {
 
             {/* Knobs */}
             <div className="my-8 grid grid-cols-2 gap-4 justify-items-center">
-              <Knob label="Cutoff" color="#67e8f9" />
-              <Knob label="Reso" color="#67e8f9" />
+              <Knob label="Cutoff" color="#67e8f9" onValueChange={(v) => filterNode.current && (filterNode.current.frequency.value = v * 2000)} />
+              <Knob label="Reso" color="#67e8f9" onValueChange={(v) => filterNode.current && (filterNode.current.Q.value = v * 20)} />
             </div>
 
             {/* Engage Switch */}
@@ -167,8 +264,8 @@ export default function Home() {
 
             {/* Knobs */}
             <div className="my-8 grid grid-cols-2 gap-4 justify-items-center">
-              <Knob label="Time" color="#d8b4fe" /> 
-              <Knob label="Decay" color="#d8b4fe" />
+              <Knob label="Time" color="#d8b4fe" onValueChange={(v) => delayNode.current && (delayNode.current.delayTime.value = v)} /> 
+              <Knob label="Decay" color="#d8b4fe" onValueChange={(v) => feedbackNode.current && (feedbackNode.current.gain.value = v)} />
             </div>
 
             {/* Engage Switch */}
