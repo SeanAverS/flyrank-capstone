@@ -171,27 +171,23 @@ export default function Home() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl p-6">
-      {/* Top Controller Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-6 mb-12">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-100">Turn The Knobs</h1>
-          <p className="text-slate-400 text-sm mt-1">They Alter The Guitar Loop</p>
-        </div>
+    <div className="mx-auto max-w-7xl p-6 flex flex-col items-center">
+      {/* Play Button */}
+      <div className="w-full flex justify-center pb-6 mb-2">
         <button 
           onClick={() => setIsPlaying(!isPlaying)}
-          className={`w-full sm:w-auto px-6 py-3 rounded-xl font-bold tracking-wide shadow-lg transition-all transform active:scale-95 ${
+          className={`px-8 py-4 rounded-2xl font-bold tracking-wide shadow-xl transition-all transform active:scale-95 text-lg ${
             isPlaying 
-              ? "bg-red-500 hover:bg-red-400 text-white shadow-red-950" 
-              : "bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-950"
+              ? "bg-red-500 hover:bg-red-400 text-white shadow-red-950/50" 
+              : "bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-950/50"
           }`}
         >
-          {isPlaying ? "⏹️ Mute Input Loop" : "▶️ Guitar Loop"}
+          {isPlaying ? "⏹ Pause" : "▶ Play Loop"}
         </button>
       </div>
 
       {/* Pedalboard */}
-      <div className="relative rounded-3xl bg-slate-900 border border-slate-800 p-8 shadow-2xl ring-1 ring-slate-800">
+      <div className="w-full relative rounded-3xl bg-slate-900 border border-slate-800 p-8 shadow-2xl ring-1 ring-slate-800">
         
         {/* Cable Connectors */}
         <div className="absolute top-1/2 left-4 right-4 h-1 bg-slate-500 -translate-y-1/2 hidden md:block rounded-full z-0" />
@@ -279,6 +275,12 @@ export default function Home() {
           </div>
 
         </div>
+      </div>
+
+      {/* Usage Instructions */}
+      <div className="mt-8 text-center">
+        <h1 className="text-2xl font-extrabold tracking-tight text-slate-100">Grey Button Turns On Pedal</h1>
+        <p className="text-slate-400 text-md mt-1">Turning Knobs Modifies Loop Sound</p>
       </div>
     </div>
   );
