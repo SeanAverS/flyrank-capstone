@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.29",
     "@hookform/resolvers": "^3.9.0",
+    "ai": "^7.0.43",
     "framer-motion": "^12.42.2",
     "lucide-react": "^0.453.0",
     "next": "14.2.15",
