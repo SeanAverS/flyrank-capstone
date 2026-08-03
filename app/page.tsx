@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
+import ChatBox from "@/components/ChatBox";
 
 /**
  * Props for the Knob component.
@@ -282,6 +283,9 @@ export default function Home() {
         <h1 className="text-2xl font-extrabold tracking-tight text-slate-100">Grey Button Turns On Pedal</h1>
         <p className="text-slate-400 text-md mt-1">Turning Knobs Modifies Loop Sound</p>
       </div>
+
+      {/* AI Chatbox */}
+      <ChatBox />
     </div>
   );
 }
