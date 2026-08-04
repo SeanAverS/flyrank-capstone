@@ -45,16 +45,10 @@ export default function ChatBox() {
   return (
     <div className="flex flex-col h-[500px] w-full max-w-xl rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden text-slate-100 my-8">
       <div className="px-5 py-3.5 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
-        <h3 className="font-semibold text-sm">Pedalboard Assistant</h3>
+        <h3 className="font-semibold text-md w-full text-center">Sound Assistant</h3>
       </div>
 
       <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-4 space-y-4 text-sm">
-        {messages.length === 0 && (
-          <div className="text-center text-slate-500 my-auto py-12">
-            <p>Ask me about the pedalboard effects, delay, or filters!</p>
-          </div>
-        )}
-
         {messages.map((m: any) => {
 
           // extract raw string
@@ -98,7 +92,7 @@ export default function ChatBox() {
           type="text"
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
-          placeholder="Ask a question..."
+          placeholder="Ask me about pedalboard effects"
           className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
         {isLoading ? (

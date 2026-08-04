@@ -173,18 +173,22 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-7xl p-6 flex flex-col items-center">
-      {/* Play Button */}
-      <div className="w-full flex justify-center pb-6 mb-2">
-        <button 
+      {/* Play Button & Usage Instructions */}
+      <div className="w-full max-w-xl mb-8 flex flex-col items-center bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+        <button
           onClick={() => setIsPlaying(!isPlaying)}
-          className={`px-8 py-4 rounded-2xl font-bold tracking-wide shadow-xl transition-all transform active:scale-95 text-lg ${
-            isPlaying 
-              ? "bg-red-500 hover:bg-red-400 text-white shadow-red-950/50" 
+          className={`w-40 py-4 rounded-2xl font-bold tracking-wide shadow-xl transition-all transform active:scale-95 text-lg text-center ${isPlaying
+              ? "bg-red-500 hover:bg-red-400 text-white shadow-red-950/50"
               : "bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-950/50"
-          }`}
+            }`}
         >
           {isPlaying ? "⏹ Pause" : "▶ Play Loop"}
         </button>
+
+        <div className="mt-4 text-center">
+          <h2 className="text-md font-bold tracking-tight text-slate-100">Grey Button Turns On Pedal</h2>
+          <p className="text-slate-400 text-sm mt-0.5">Turning Knobs Modifies Sound</p>
+        </div>
       </div>
 
       {/* Pedalboard */}
@@ -276,12 +280,6 @@ export default function Home() {
           </div>
 
         </div>
-      </div>
-
-      {/* Usage Instructions */}
-      <div className="mt-8 text-center">
-        <h1 className="text-2xl font-extrabold tracking-tight text-slate-100">Grey Button Turns On Pedal</h1>
-        <p className="text-slate-400 text-md mt-1">Turning Knobs Modifies Loop Sound</p>
       </div>
 
       {/* AI Chatbox */}
