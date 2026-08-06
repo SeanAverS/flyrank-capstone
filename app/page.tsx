@@ -283,7 +283,15 @@ export default function Home() {
       </div>
 
       {/* AI Chatbox */}
-      <ChatBox />
+      <ChatBox 
+        onApplyPreset={(preset) => {
+          setActivePedals({
+            boost: preset.boostEngaged,
+            filter: preset.filterEngaged,
+            delay: preset.delayEngaged,
+          });
+        }} 
+      />
     </div>
   );
 }
