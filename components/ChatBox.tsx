@@ -11,7 +11,7 @@ interface ChatBoxProps {
 }
 
 export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
-  const { messages, sendMessage, stop, status } = useChat();
+  const { messages, sendMessage, stop, status, error, setMessages } = useChat();
   const [textInput, setTextInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -47,6 +47,20 @@ export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
     setTextInput("");
   };
 
+  // Retry answering a question after losing connection
+  const handleRetry = () => {
+    const lastUserMessage = [...messages].reverse().find((m: any) => m.role === "user");
+    if (!lastUserMessage) return;
+
+    setMessages(messages.filter((m: any) => m.id !== lastUserMessage.id));
+    
+    const textPart = (lastUserMessage.parts as any[])?.find((p: any) => p.type === "text")?.text;
+
+    if (textPart) {
+      sendMessage({ role: "user", parts: [{ type: "text", text: textPart }] });
+    }
+  };
+
   return (
     <div className="flex flex-col h-[500px] w-full max-w-xl rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden text-slate-100 my-8">
       <div className="px-5 py-3.5 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
@@ -54,6 +68,18 @@ export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
       </div>
 
       <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-4 space-y-4 text-sm">
+        {/* Handle UI when no questions have been asked */}
+        {messages.length === 0 && !error && (
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 space-y-2">
+            <span className="text-2xl">🎛️</span>
+            <p className="font-semibold text-slate-200">No preset history yet</p>
+            <p className="text-xs max-w-xs">
+              Try asking the sound assistant for a preset like:{" "}
+              <span className="text-amber-400 font-medium">"Give me an indie rock preset"</span>
+            </p>
+          </div>
+        )}
+
         {messages.map((m: any) => {
           return (
             <div key={m.id} className={`flex flex-col my-2 ${m.role === "user" ? "items-end" : "items-start"}`}>
@@ -141,6 +167,21 @@ export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
             </div>
           );
         })}
+
+        {/* Retry answering a question after losing connection */}
+        {error && (
+          <div className="p-3 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-200 text-xs flex flex-col space-y-2 my-2">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold">⚠️ Connection or stream failed</span>
+              <button 
+                onClick={() => handleRetry()}
+                className="px-2.5 py-1 bg-rose-700 hover:bg-rose-600 text-white rounded-lg font-medium transition"
+              >
+                Retry Last Message
+              </button>
+            </div>
+          </div>
+        )}
 
         {isLoading && messages[messages.length - 1]?.role === "user" && (
           <div className="flex items-start">
