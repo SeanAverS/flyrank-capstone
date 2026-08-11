@@ -8,11 +8,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface ChatBoxProps {
   onApplyPreset?: (preset: { boostEngaged: boolean; filterEngaged: boolean; delayEngaged: boolean }) => void;
+  forcedState?: "success" | "error" | null;
 }
 
-export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
-  const { messages, sendMessage, stop, status, error, setMessages } = useChat();
+export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
+  const { messages, sendMessage, stop, status, error: chatError, setMessages } = useChat();
   const [textInput, setTextInput] = useState("");
+  const [manualError, setManualError] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const isLoading = status === "streaming" || status === "submitted";
@@ -30,9 +32,23 @@ export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
     }
   }, [messages, isAtBottom]);
 
+  // FE-AA1: Reset manual error when user switches states 
+  useEffect(() => {
+    if (forcedState !== "error") {
+      setManualError(false);
+    }
+  }, [forcedState]);
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!textInput.trim()) return;
+
+    // FE-AA1: Handle forced error state 
+    if (forcedState === "error" || manualError) {
+      setManualError(true);
+      setTextInput("");
+      return;
+    }
 
     if (onApplyPreset) {
       const lower = textInput.toLowerCase();
@@ -49,6 +65,7 @@ export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
 
   // Retry answering a question after losing connection
   const handleRetry = () => {
+    setManualError(false);
     const lastUserMessage = [...messages].reverse().find((m: any) => m.role === "user");
     if (!lastUserMessage) return;
 
@@ -61,6 +78,8 @@ export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
     }
   };
 
+  const hasError = chatError || manualError || forcedState === "error";
+
   return (
     <div className="flex flex-col h-[500px] w-full max-w-xl rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden text-slate-100 my-8">
       <div className="px-5 py-3.5 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
@@ -69,7 +88,7 @@ export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
 
       <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-4 space-y-4 text-sm">
         {/* Handle UI when no questions have been asked */}
-        {messages.length === 0 && !error && (
+        {messages.length === 0 && !hasError && (
           <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 space-y-2">
             <span className="text-2xl">🎛️</span>
             <p className="font-semibold text-slate-200">No preset history yet</p>
@@ -169,10 +188,14 @@ export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
         })}
 
         {/* Retry answering a question after losing connection */}
-        {error && (
-          <div className="p-3 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-200 text-xs flex flex-col space-y-2 my-2">
+        {hasError && (
+          <motion.div 
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-3 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-200 text-xs flex flex-col space-y-2 my-2"
+          >
             <div className="flex items-center justify-between">
-              <span className="font-semibold">⚠️ Connection or stream failed</span>
+              <span className="font-semibold">⚠️ Connection or stream failed (Forced Error State)</span>
               <button 
                 onClick={() => handleRetry()}
                 className="px-2.5 py-1 bg-rose-700 hover:bg-rose-600 text-white rounded-lg font-medium transition"
@@ -180,7 +203,7 @@ export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
                 Retry Last Message
               </button>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {isLoading && messages[messages.length - 1]?.role === "user" && (
@@ -202,15 +225,39 @@ export default function ChatBox({ onApplyPreset }: ChatBoxProps) {
           placeholder="Ask me about pedalboard effects"
           className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
-        {isLoading ? (
-          <button type="button" onClick={stop} className="bg-rose-600 text-white px-4 py-2.5 rounded-xl font-semibold text-xs hover:bg-rose-500 transition">
-            Stop
-          </button>
-        ) : (
-          <button type="submit" className="bg-emerald-500 text-slate-950 px-4 py-2.5 rounded-xl font-semibold text-xs hover:bg-emerald-400 transition">
-            Send
-          </button>
-        )}
+        
+        <div className="relative">
+          <AnimatePresence mode="wait" initial={false}>
+            {isLoading ? (
+              <motion.button
+                key="stop"
+                type="button"
+                onClick={stop}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.15 }}
+                whileTap={{ scale: 0.97 }}
+                className="bg-rose-600 text-white px-4 py-2.5 rounded-xl font-semibold text-xs hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-400 shadow-md"
+              >
+                Stop
+              </motion.button>
+            ) : (
+              <motion.button
+                key="send"
+                type="submit"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.15 }}
+                whileTap={{ scale: 0.97 }}
+                className="bg-emerald-500 text-slate-950 px-4 py-2.5 rounded-xl font-semibold text-xs hover:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-md"
+              >
+                Send
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
       </form>
     </div>
   );

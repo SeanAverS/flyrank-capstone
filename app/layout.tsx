@@ -23,6 +23,7 @@ export default function RootLayout({
             <nav className="flex gap-6">
               <Link href="/" className="hover:text-emerald-400 transition-colors">Pedalboard</Link>
               <Link href="/health-check" className="hover:text-emerald-400 transition-colors">Health Check</Link>
+              <Link href="/health-check" className="hover:text-emerald-400 transition-colors">FE-AA1</Link>
             </nav>
           </div>
         </header>

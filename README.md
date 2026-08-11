@@ -44,3 +44,9 @@ Generates custom audio effects configurations based on a requested user guitar t
     "delayTime": 0.4
   }
 }
+```
+
+## FE-AA1 Motion and State Micro-Interactions
+
+* **Durations (150ms):** Button state switches between `Send` and `Stop`. Feedback states use `≈150ms` durations to ensure interface feels snappy.
+* **Easing & Compositor Properties:** All state transitions use compositor-friendly properties (transform and opacity) coupled with smooth Framer Motion spring/tween curves.
