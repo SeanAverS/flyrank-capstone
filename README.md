@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-## Tool Contract: `suggestPedalPreset`
+## FE-07 Tool Contract: `suggestPedalPreset`
 
 ### Overview
 Generates custom audio effects configurations based on a requested user guitar tone or musical genre.
