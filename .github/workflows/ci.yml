@@ -25,11 +25,11 @@ jobs:
       - name: Run Component Tests (Vitest)
         run: npx vitest run
         
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-        
       - name: Build Next.js App
         run: npm run build
+        
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
         
       - name: Run Playwright E2E Tests
         run: npx playwright test
