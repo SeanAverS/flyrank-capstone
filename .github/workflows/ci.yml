@@ -31,5 +31,8 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install
         
-      - name: Run Playwright E2E Tests
-        run: npx playwright test e2e
+      - name: Start App and Run Playwright E2E Tests
+        run: |
+          npm run start &
+          npx wait-on http://localhost:3000
+          npx playwright test e2e
