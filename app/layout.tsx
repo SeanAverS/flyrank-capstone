@@ -24,6 +24,11 @@ export default function RootLayout({
               <Link href="/" className="hover:text-emerald-400 transition-colors">Pedalboard</Link>
               <Link href="/health-check" className="hover:text-emerald-400 transition-colors">Health Check</Link>
               <Link href="/demo" className="hover:text-emerald-400 transition-colors">FE-AA1</Link>
+              <Link href="/3d-demo" className="hover:text-emerald-400 transition-colors">
+              FE-AA2
+              </Link>
+              
+
             </nav>
           </div>
         </header>
