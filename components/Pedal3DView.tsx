@@ -61,7 +61,7 @@ export default function Pedal3DView() {
     chassis.position.y = 0.4;
     chassis.castShadow = true;
     chassis.receiveShadow = true;
-    pedalGroup.add(chassis);
+    pedalGroup.add(chassis); 
 
     // Knobs
     const knobGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.35, 32);
