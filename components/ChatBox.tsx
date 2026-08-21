@@ -86,10 +86,16 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
         <h3 className="font-semibold text-md w-full text-center">Sound Assistant</h3>
       </div>
 
-      <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-4 space-y-4 text-sm">
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        aria-live="polite"
+        aria-relevant="additions"
+        className="flex-1 overflow-y-auto p-4 space-y-4 text-sm"
+      >
         {/* Handle UI when no questions have been asked */}
         {messages.length === 0 && !hasError && (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 space-y-2">
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-300 space-y-2">
             <span className="text-2xl">🎛️</span>
             <p className="font-semibold text-slate-200">No preset history yet</p>
             <p className="text-xs max-w-xs">
@@ -138,7 +144,7 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -5 }}
                               transition={{ duration: 0.2 }}
-                              className="flex items-center space-x-2 text-slate-400 text-xs italic py-2"
+                              className="flex items-center space-x-2 text-slate-300 text-xs italic py-2"
                             >
                               <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping"></span>
                               <span>Dialing in knobs and calculating tone...</span>
@@ -156,7 +162,7 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
                               <p className="font-bold text-slate-100 text-sm">
                                 {result?.preset?.styleName || inputData?.styleName || "Custom Preset"}
                               </p>
-                              <div className="grid grid-cols-3 gap-1 text-[11px] text-slate-400 mt-2 bg-slate-950 p-2 rounded-lg">
+                              <div className="grid grid-cols-3 gap-1 text-[11px] text-slate-300 mt-2 bg-slate-950 p-2 rounded-lg">
                                 <div>Boost: <span className="text-slate-200">On</span></div>
                                 <div>Filter: <span className="text-slate-200">On</span></div>
                                 <div>Delay: <span className="text-slate-200">On</span></div>
@@ -208,7 +214,7 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
 
         {isLoading && messages[messages.length - 1]?.role === "user" && (
           <div className="flex items-start">
-            <div className="bg-slate-800 text-slate-400 rounded-2xl rounded-bl-none px-4 py-3 border border-slate-700/50 flex items-center space-x-1.5">
+            <div className="bg-slate-800 text-slate-300 rounded-2xl rounded-bl-none px-4 py-3 border border-slate-700/50 flex items-center space-x-1.5">
               <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"></span>
               <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
               <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
@@ -223,6 +229,7 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
           placeholder="Ask me about pedalboard effects"
+          aria-label="Ask me about pedalboard effects"
           className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
         

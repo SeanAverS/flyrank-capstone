@@ -15,7 +15,7 @@ export default function Page() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-black uppercase tracking-wider">FE-AA2: 3D Pedal Experience</h1>
-          <p className="text-zinc-400 text-sm">Interactive 3D guitar pedal viewer with Leva configurator & footswitch state toggle.</p>
+          <p className="text-zinc-300 text-sm">Interactive 3D guitar pedal viewer with Leva configurator & footswitch state toggle.</p>
         </div>
       </div>
 
