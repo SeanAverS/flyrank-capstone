@@ -2,6 +2,11 @@
 
 An application optimized using AI-assisted  workflows.
 
+## Project Brief
+* **What problem does it solve?** Allows guitarists to describe a  sound to configure to a pedalboard.
+* **Who is it for?** Guitarists and home-studio musicians.
+* **Why did you choose this idea?** To combine frontend web technology with a useful music tool.
+
 ## Tech Stack
 - **Framework:** Next.js 
 - **Styling:** Tailwind CSS
@@ -56,3 +61,15 @@ Generates custom audio effects configurations based on a requested user guitar t
 * **What was built:** An interactive 3D guitar pedal viewer using pure Three.js to toggle LED lighting.
 * **Performance note:** Avoided external `.glb` models and used native WebGL primitives to keep bundle size minimal.
 * **With more time:** Add support for custom `.glb` model imports and direct mouse raycasting (users can click the pedal or drag knobs directly inside the canvas).
+
+## Deployment, Error Handling & Rollback
+* **Error Handling:** Catches stream failures and connection drops with a one-click "Retry Last Message" fallback flow.
+* **Rollback Plan:** Deployment fully automated via Vercel connected. Rollbacks handled instantly via Vercel's dashboard.
+
+## Reflection
+* **What was hardest? Why?** 
+  Balancing synchronizing the AI SDK tool-invocation states with UI updates while also keeping the 3D WebGL context stable under Next.js server-side constraints.
+* **What would you do differently next time?** 
+  Implement end-to-end component testing earlier in the build cycle rather than relying on manual testing toward the end.
+* **One thing you learned that surprised you?** 
+  How powerful structured tool-calling is for frontend applications. It eliminates parsing errors and makes passing states from a chat prompt to UI components seamless.
