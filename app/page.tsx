@@ -5,6 +5,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import ChatBox from "@/components/ChatBox";
+import ShaderHero from "@/components/ShaderHero";
 
 /**
  * Props for the Knob component.
@@ -172,9 +173,10 @@ export default function Home() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl p-6 flex flex-col items-center">
+    <div className="relative mx-auto max-w-7xl p-6 flex flex-col items-center min-h-screen">
+      <ShaderHero />
       {/* Play Button & Usage Instructions */}
-      <div className="w-full max-w-xl mb-8 flex flex-col items-center bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+      <div className="w-full max-w-xl mb-8 flex flex-col items-center bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl relative z-10">
         <button
           onClick={() => setIsPlaying(!isPlaying)}
           className={`w-40 py-4 rounded-2xl font-bold tracking-wide shadow-xl transition-all transform active:scale-95 text-lg text-center ${isPlaying
@@ -192,7 +194,7 @@ export default function Home() {
       </div>
 
       {/* Pedalboard */}
-      <div className="w-full relative rounded-3xl bg-slate-900 border border-slate-800 p-8 shadow-2xl ring-1 ring-slate-800">
+      <div className="w-full relative rounded-3xl bg-slate-900 border border-slate-800 p-8 shadow-2xl ring-1 ring-slate-800 z-10">
         
         {/* Cable Connectors */}
         <div className="absolute top-1/2 left-4 right-4 h-1 bg-slate-500 -translate-y-1/2 hidden md:block rounded-full z-0" />
@@ -283,15 +285,17 @@ export default function Home() {
       </div>
 
       {/* AI Chatbox */}
-      <ChatBox 
-        onApplyPreset={(preset) => {
-          setActivePedals({
-            boost: preset.boostEngaged,
-            filter: preset.filterEngaged,
-            delay: preset.delayEngaged,
-          });
-        }} 
-      />
+      <div className="relative z-10 w-full max-w-xl mt-8">
+        <ChatBox 
+          onApplyPreset={(preset) => {
+            setActivePedals({
+              boost: preset.boostEngaged,
+              filter: preset.filterEngaged,
+              delay: preset.delayEngaged,
+            });
+          }} 
+        />
+      </div>
     </div>
   );
 }
