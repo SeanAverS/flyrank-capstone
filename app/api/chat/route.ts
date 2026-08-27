@@ -9,6 +9,23 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
+  // Production Hygiene: ensure messages array exists and is not huge
+  if (!messages || !Array.isArray(messages)) {
+    return new Response(JSON.stringify({ error: "Invalid request body." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Production Hygiene: Check user message length to prevent token drain
+  const lastMessage = messages[messages.length - 1];
+  if (lastMessage && typeof lastMessage.content === "string" && lastMessage.content.length > 500) {
+    return new Response(JSON.stringify({ error: "Prompt exceeds maximum character limit of 500." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const result = streamText({
     model: CHAT_MODEL,
     system: SYSTEM_PROMPT,
