@@ -1,3 +1,5 @@
+// Ambient background shader effect
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
