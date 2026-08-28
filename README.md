@@ -7,10 +7,24 @@ An application optimized using AI-assisted  workflows.
 * **Who is it for?** Guitarists and home-studio musicians.
 * **Why did you choose this idea?** To combine frontend web technology with a useful music tool.
 
+## Screenshots
+* **Pedalboard & Shader Hero View:** ![Pedalboard App](./images/pedalboard.png)
+* **Pedal Effects Chat Assistant:** ![Pedal Effects Assistant](./images/pedal_effects_assistant.png)
+
+## Architecture Overview
+* **`app/page.tsx`:** Main dashboard coordinating the WebGL/CSS shader background, Web Audio API loop engine, and interactive guitar pedals.
+* **`app/api/chat/route.ts`:** Serverless API route handling streaming LLM requests, Zod tool schemas, and production hygiene safeguards.
+* **`components/ShaderHero.tsx`:** Dynamic animated background component with built-in accessibility fallbacks (`prefers-reduced-motion`).
+
 ## Tech Stack
 - **Framework:** Next.js 
 - **Styling:** Tailwind CSS
 - **Deployment:** Vercel
+
+## Environment Variables (`.env.local`)
+| Variable | Description | Required |
+| :--- | :--- | :--- |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | API key for Gemini LLM-powered preset generation | Yes |
 
 ## Setup
 ```bash
@@ -65,6 +79,9 @@ Generates custom audio effects configurations based on a requested user guitar t
 ## Deployment, Error Handling & Rollback
 * **Error Handling:** Catches stream failures and connection drops with a one-click "Retry Last Message" fallback flow.
 * **Rollback Plan:** Deployment fully automated via Vercel connected. Rollbacks handled instantly via Vercel's dashboard.
+
+## How AI Tools Built This
+Accelerate boilerplate generation for Web Audio API node connections, structure Zod schemas for tool-calling contracts, and debug Next.js App Router client/server state boundaries. 
 
 ## Reflection
 * **What was hardest? Why?** 
