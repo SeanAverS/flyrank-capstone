@@ -86,10 +86,12 @@ export default function Home() {
     const ctx = new window.AudioContext();
     audioContext.current = ctx;
 
-    const source = ctx.createOscillator();
-    source.type = "sawtooth";
-    source.frequency.setValueAtTime(110, ctx.currentTime);
+    // Audio element with local file ('/loop.mp3')
+    const audioEl = new Audio('https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf7f6.mp3?filename=acoustic-guitar-loop-100bpm-102456.mp3');
+    audioEl.loop = true;
+    audioEl.crossOrigin = "anonymous";
 
+    const source = ctx.createMediaElementSource(audioEl);
     const gain = ctx.createGain();
     const filter = ctx.createBiquadFilter();
     const delay = ctx.createDelay(1.0);
@@ -103,6 +105,7 @@ export default function Home() {
     delay.delayTime.value = 0.3;
     feedback.gain.value = 0.4;
 
+    // Connect chain: source -> gain -> filter -> delay -> destination (+ feedback loop)
     source.connect(gain);
     gain.connect(filter);
     filter.connect(delay);
@@ -110,16 +113,33 @@ export default function Home() {
     delay.connect(feedback);
     feedback.connect(delay);
 
-    oscillator.current = source;
+    // Store references
+    (window as any).__sharedAudioEl = audioEl;
     gainNode.current = gain;
     filterNode.current = filter;
     delayNode.current = delay;
     feedbackNode.current = feedback;
 
     return () => {
+      audioEl.pause();
       ctx.close();
     };
   }, []);
+
+  // Handle Play/Stop for the real audio sample
+  useEffect(() => {
+    const audioEl = (window as any).__sharedAudioEl;
+    if (!audioEl || !audioContext.current) return;
+
+    if (isPlaying) {
+      if (audioContext.current.state === "suspended") {
+        audioContext.current.resume();
+      }
+      audioEl.play().catch((err: any) => console.log("Playback prevented:", err));
+    } else {
+      audioEl.pause();
+    }
+  }, [isPlaying]);
 
   // Handle Play/Stop
   useEffect(() => {
