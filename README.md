@@ -1,6 +1,6 @@
 # FlyRank Capstone 
 
-An application optimized using AI-assisted  workflows.
+A group of guitar pedals that can manipulate sound loops. This application is optimized using AI-assisted workflows.
 
 ## Project Brief
 * **What problem does it solve?** Allows guitarists to describe a  sound to configure to a pedalboard.
