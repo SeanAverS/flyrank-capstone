@@ -75,7 +75,7 @@ export default function Home() {
   const [activePedals, setActivePedals] = useState({ boost: true, filter: false, delay: true });
   
   const audioContext = useRef<AudioContext | null>(null);
-  const oscillator = useRef<OscillatorNode | null>(null);
+  const audioElement = useRef<HTMLAudioElement | null>(null);
   const gainNode = useRef<GainNode | null>(null);
   const filterNode = useRef<BiquadFilterNode | null>(null);
   const delayNode = useRef<DelayNode | null>(null);
@@ -87,9 +87,10 @@ export default function Home() {
     audioContext.current = ctx;
 
     // Audio element with local file ('/loop.mp3')
-    const audioEl = new Audio('https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf7f6.mp3?filename=acoustic-guitar-loop-100bpm-102456.mp3');
+    const audioEl = new Audio('/loop.mp3');
     audioEl.loop = true;
     audioEl.crossOrigin = "anonymous";
+    audioElement.current = audioEl;
 
     const source = ctx.createMediaElementSource(audioEl);
     const gain = ctx.createGain();
@@ -113,8 +114,6 @@ export default function Home() {
     delay.connect(feedback);
     feedback.connect(delay);
 
-    // Store references
-    (window as any).__sharedAudioEl = audioEl;
     gainNode.current = gain;
     filterNode.current = filter;
     delayNode.current = delay;
@@ -128,47 +127,15 @@ export default function Home() {
 
   // Handle Play/Stop for the real audio sample
   useEffect(() => {
-    const audioEl = (window as any).__sharedAudioEl;
-    if (!audioEl || !audioContext.current) return;
+    if (!audioElement.current || !audioContext.current) return;
 
     if (isPlaying) {
       if (audioContext.current.state === "suspended") {
         audioContext.current.resume();
       }
-      audioEl.play().catch((err: any) => console.log("Playback prevented:", err));
+      audioElement.current.play().catch((err: any) => console.log("Playback prevented:", err));
     } else {
-      audioEl.pause();
-    }
-  }, [isPlaying]);
-
-  // Handle Play/Stop
-  useEffect(() => {
-    if (!audioContext.current || !oscillator.current) return;
-    
-    if (isPlaying) {
-      if (audioContext.current.state === "suspended") {
-        audioContext.current.resume();
-      }
-      try {
-        oscillator.current.start();
-      } catch (e) {
-        // Ignored if loop already started
-      }
-    } else {
-      try {
-        oscillator.current.stop();
-      } catch (e) {
-        // Ignored if already stopped
-      }
-      
-      // Recreate oscillator after stopping
-      const newOsc = audioContext.current.createOscillator();
-      newOsc.type = "sawtooth";
-      newOsc.frequency.setValueAtTime(110, audioContext.current.currentTime);
-      if (gainNode.current) {
-        newOsc.connect(gainNode.current);
-      }
-      oscillator.current = newOsc;
+      audioElement.current.pause();
     }
   }, [isPlaying]);
 
