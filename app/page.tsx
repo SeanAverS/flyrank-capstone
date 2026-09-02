@@ -145,7 +145,7 @@ export default function Home() {
     const { boost, filter, delay } = activePedals;
     
     // Reset gains or disconnect 
-    if (gainNode.current) gainNode.current.gain.value = boost ? 1 : 0;
+    if (gainNode.current) gainNode.current.gain.value = boost ? 1.5 : 1;
     if (filterNode.current) filterNode.current.type = filter ? "lowpass" : "allpass";
     if (feedbackNode.current) feedbackNode.current.gain.value = delay ? 0.4 : 0;
   }, [activePedals]);
