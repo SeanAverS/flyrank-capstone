@@ -171,12 +171,12 @@ export default function Home() {
               : "bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-950/50"
             }`}
         >
-          {isPlaying ? "⏹ Pause" : "▶ Play Loop"}
+          {isPlaying ? "Pause" : "Play"}
         </button>
 
         <div className="mt-4 text-center">
-          <h2 className="text-md font-bold tracking-tight text-slate-100">Grey Button Turns On Pedal</h2>
-          <p className="text-slate-400 text-sm mt-0.5">Turning Knobs Modifies Sound</p>
+          <h2 className="text-md font-bold tracking-tight text-slate-100">Engage A Pedal</h2>
+          <p className="text-slate-400 text-sm mt-0.5">Knobs Change Sound</p>
         </div>
       </div>
 
