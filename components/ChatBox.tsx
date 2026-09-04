@@ -97,9 +97,9 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
         {messages.length === 0 && !hasError && (
           <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-300 space-y-2">
             <span className="text-2xl">🎛️</span>
-            <p className="font-semibold text-slate-200">No preset history yet</p>
+            <p className="font-semibold text-slate-200">No Presets Yet</p>
             <p className="text-xs max-w-xs">
-              Try asking the sound assistant for a preset like:{" "}
+              Example Prompt:{" "}
               <span className="text-amber-400 font-medium">"Give me an indie rock preset"</span>
             </p>
           </div>
@@ -228,7 +228,6 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
           type="text"
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
-          placeholder="Ask me about pedalboard effects"
           aria-label="Ask me about pedalboard effects"
           className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
