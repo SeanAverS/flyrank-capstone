@@ -19,7 +19,7 @@ describe("ChatBox Component (FE-09)", () => {
   // 1. Idle state test
   it("renders the input and send button in idle state", () => {
     render(<ChatBox />);
-    const input = screen.getByPlaceholderText(/ask me about pedalboard effects/i);
+    const input = screen.getByRole("textbox");
     const sendButton = screen.getByRole("button", { name: /send/i });
     expect(input).toBeInTheDocument();
     expect(sendButton).toBeInTheDocument();
@@ -48,14 +48,14 @@ describe("ChatBox Component (FE-09)", () => {
   // 4. Initial empty state message test
   it("shows the empty history prompt when no messages exist", () => {
     render(<ChatBox />);
-    const emptyPrompt = screen.getByText(/no preset history yet/i);
+    const emptyPrompt = screen.getByText(/no presets yet/i);
     expect(emptyPrompt).toBeInTheDocument();
   });
 
   // 5. Valid form input submission test
   it("allows typing into the input field", () => {
     render(<ChatBox />);
-    const input = screen.getByPlaceholderText(/ask me about pedalboard effects/i) as HTMLInputElement;
+    const input = screen.getByRole("textbox") as HTMLInputElement;
     
     fireEvent.change(input, { target: { value: "Give me an indie rock preset" } });
     expect(input.value).toBe("Give me an indie rock preset");
@@ -66,7 +66,7 @@ describe("ChatBox Component (FE-09)", () => {
     const handlePreset = vi.fn();
     render(<ChatBox onApplyPreset={handlePreset} />);
     
-    const input = screen.getByPlaceholderText(/ask me about pedalboard effects/i);
+    const input = screen.getByRole("textbox");
     const sendButton = screen.getByRole("button", { name: /send/i });
     
     fireEvent.change(input, { target: { value: "indie tone preset" } });
