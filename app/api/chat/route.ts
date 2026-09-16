@@ -19,7 +19,11 @@ export async function POST(req: Request) {
 
   // Production Hygiene: Check user message length to prevent token drain
   const lastMessage = messages[messages.length - 1];
-  if (lastMessage && typeof lastMessage.content === "string" && lastMessage.content.length > 500) {
+  const lastMessageText = typeof lastMessage?.content === "string" 
+    ? lastMessage.content 
+    : lastMessage?.parts?.find((p: any) => p.type === "text")?.text || "";
+
+  if (lastMessageText.length > 500) {
     return new Response(JSON.stringify({ error: "Prompt exceeds maximum character limit of 500." }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
@@ -47,7 +51,7 @@ export async function POST(req: Request) {
           styleName: string;
           boostEngaged: boolean;
           gainLevel: number;
-          filterEngaged: number | boolean;
+          filterEngaged: boolean;
           cutoffFreq: number;
           delayEngaged: boolean;
           delayTime: number;
