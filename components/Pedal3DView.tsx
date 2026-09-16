@@ -141,19 +141,15 @@ export default function Pedal3DView() {
         className="bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl" 
       />
 
-      <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
-        <div>
-          <h2 className="text-sm font-bold text-zinc-200"> Footswitch Toggles Light</h2>
-        </div>
         <button
           onClick={() => setIsEngaged(!isEngaged)}
-          className={`px-4 py-2 rounded-lg font-bold text-xs transition-all ${
+          className={`px-4 py-2 rounded-lg font-bold text-med transition-all ${
             isEngaged ? 'bg-red-500 text-white' : 'bg-zinc-700 text-zinc-300'
           }`}
         >
           {isEngaged ? 'ENGAGED (ON)' : 'BYPASSED (OFF)'}
         </button>
-      </div>
+      
     </div>
   );
 }
