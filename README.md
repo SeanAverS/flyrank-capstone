@@ -3,7 +3,7 @@
 A group of guitar pedals that can manipulate sound loops. This application is optimized using AI-assisted workflows.
 
 ## Project Brief
-* **What problem does it solve?** Allows guitarists to describe a  sound to configure to a pedalboard.
+* **What problem does it solve?** Allows guitarists to describe a sound to configure to a pedalboard.
 * **Who is it for?** Guitarists and home-studio musicians.
 * **Why did you choose this idea?** To combine frontend web technology with a useful music tool.
 
