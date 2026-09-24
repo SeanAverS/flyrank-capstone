@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     // ZOD schema
     tools: {
       suggestPedalPreset: tool({
-        description: 'Suggests a pedalboard preset (boost, filter, and delay settings) based on a requested guitar tone or genre.',
+        description: 'Suggests a pedalboard preset (boost, filter, and delay settings) based on a requested guitar tone, genre or player.',
         inputSchema: z.object({
           styleName: z.string().describe('The name of the tone or genre, e.g. "Ambient Shoegaze", "Heavy Metal Lead"'),
           boostEngaged: z.boolean().describe('Whether Chrono Boost is turned on'),
