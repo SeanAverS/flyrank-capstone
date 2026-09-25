@@ -30,6 +30,7 @@ export async function POST(req: Request) {
     });
   }
 
+  // Chatbox presets
   const result = streamText({
     model: CHAT_MODEL,
     system: SYSTEM_PROMPT,
