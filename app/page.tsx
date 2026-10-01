@@ -2,10 +2,22 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, useMotionValue } from "framer-motion";
 import ChatBox from "@/components/ChatBox";
 import ShaderHero from "@/components/ShaderHero";
+
+const DEFAULT_PRESET = {
+  boost: true,
+  filter: false,
+  delay: true,
+  gainVal: 0.5,
+  levelVal: 0.5,
+  cutoffVal: 0.5,
+  resoVal: 0.5,
+  timeVal: 0.3,
+  decayVal: 0.4,
+};
 
 /**
  * Props for the Knob component.
@@ -15,6 +27,8 @@ interface KnobProps {
   label: string;
   /** Color of the knob line. */
   color: string;
+  /** Current value from 0 to 1 */
+  value: number;
   /** Callback when knob rotates (value changes) */
   onValueChange?: (value: number) => void;
 }
@@ -22,8 +36,15 @@ interface KnobProps {
 /**
  * Snaps pedal knob line to the clicked position. 
  */
-function Knob({ label, color, onValueChange }: KnobProps) {
-  const rotation = useMotionValue(0);
+function Knob({ label, color, value, onValueChange }: KnobProps) {
+  // 270-degree audio sweep (-135deg to +135deg)
+  const degrees = (value * 270) - 135;
+  const rotation = useMotionValue(degrees);
+
+  // Sync knob visual on preset change
+  useEffect(() => {
+    rotation.set((value * 270) - 135);
+  }, [value, rotation]);
 
   /**
    * Adjust pedal knob to the clicked position. 
@@ -40,13 +61,11 @@ function Knob({ label, color, onValueChange }: KnobProps) {
     const radians = Math.atan2(event.clientY - centerY, event.clientX - centerX);
     
     // degree conversion + rotate coordinates so knob top = 0 degrees
-    const degrees = (radians * (180 / Math.PI)) + 90;
-    
-    rotation.set(degrees);
+    const clickDegrees = (radians * (180 / Math.PI)) + 90;
     
     // detect knob rotation 
     if (onValueChange) {
-      const normalizedValue = ((degrees % 360) + 360) % 360 / 360;
+      const normalizedValue = Math.max(0, Math.min(1, ((clickDegrees % 360) + 360) % 360 / 360));
       onValueChange(normalizedValue);
     }
   };
@@ -72,8 +91,20 @@ function Knob({ label, color, onValueChange }: KnobProps) {
  */
 export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [activePedals, setActivePedals] = useState({ boost: true, filter: false, delay: true });
+  const [activePedals, setActivePedals] = useState({ 
+    boost: DEFAULT_PRESET.boost, 
+    filter: DEFAULT_PRESET.filter, 
+    delay: DEFAULT_PRESET.delay 
+  });
   
+  // Knobs initialized to default positions
+  const [gainVal, setGainVal] = useState(DEFAULT_PRESET.gainVal);
+  const [levelVal, setLevelVal] = useState(DEFAULT_PRESET.levelVal);
+  const [cutoffVal, setCutoffVal] = useState(DEFAULT_PRESET.cutoffVal);
+  const [resoVal, setResoVal] = useState(DEFAULT_PRESET.resoVal);
+  const [timeVal, setTimeVal] = useState(DEFAULT_PRESET.timeVal);
+  const [decayVal, setDecayVal] = useState(DEFAULT_PRESET.decayVal);
+
   const audioContext = useRef<AudioContext | null>(null);
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const gainNode = useRef<GainNode | null>(null);
@@ -99,12 +130,12 @@ export default function Home() {
     const feedback = ctx.createGain();
 
     // Set initial values
-    gain.gain.value = 0.5;
-    filter.type = "lowpass";
-    filter.frequency.value = 1000;
-    filter.Q.value = 1;
-    delay.delayTime.value = 0.3;
-    feedback.gain.value = 0.4;
+    gain.gain.value = DEFAULT_PRESET.boost ? DEFAULT_PRESET.gainVal * 1.5 : 1;
+    filter.type = DEFAULT_PRESET.filter ? "lowpass" : "allpass";
+    filter.frequency.value = DEFAULT_PRESET.cutoffVal * 2000;
+    filter.Q.value = DEFAULT_PRESET.resoVal * 20;
+    delay.delayTime.value = DEFAULT_PRESET.timeVal;
+    feedback.gain.value = DEFAULT_PRESET.delay ? DEFAULT_PRESET.decayVal : 0;
 
     // Connect chain: source -> gain -> filter -> delay -> destination (+ feedback loop)
     source.connect(gain);
@@ -144,20 +175,63 @@ export default function Home() {
     if (!audioContext.current) return;
     const { boost, filter, delay } = activePedals;
     
-    // Reset gains or disconnect 
-    if (gainNode.current) gainNode.current.gain.value = boost ? 1.5 : 1;
-    if (filterNode.current) filterNode.current.type = filter ? "lowpass" : "allpass";
-    if (feedbackNode.current) feedbackNode.current.gain.value = delay ? 0.4 : 0;
-  }, [activePedals]);
+    if (gainNode.current) {
+      gainNode.current.gain.value = boost ? gainVal * 1.5 : 1;
+    }
+    if (filterNode.current) {
+      filterNode.current.type = filter ? "lowpass" : "allpass";
+      filterNode.current.frequency.value = cutoffVal * 2000;
+      filterNode.current.Q.value = resoVal * 20;
+    }
+    if (delayNode.current) {
+      delayNode.current.delayTime.value = timeVal;
+    }
+    if (feedbackNode.current) {
+      feedbackNode.current.gain.value = delay ? decayVal : 0;
+    }
+  }, [activePedals, gainVal, levelVal, cutoffVal, resoVal, timeVal, decayVal]);
 
   /**
    * Turn a pedal on or off.
-   * 
-   * @param pedal - Identify which pedal to toggle.
    */
   const togglePedal = (pedal: "boost" | "filter" | "delay") => {
     setActivePedals(prev => ({ ...prev, [pedal]: !prev[pedal] }));
   };
+
+  // Handle multiple prompts 
+  const handleApplyPreset = useCallback((preset: { 
+    boostEngaged: boolean; 
+    gainLevel: number;
+    filterEngaged: boolean; 
+    cutoffFreq: number;
+    delayEngaged: boolean;
+    delayTime: number;
+  }) => {
+    setActivePedals({
+      boost: preset.boostEngaged,
+      filter: preset.filterEngaged,
+      delay: preset.delayEngaged,
+    });
+
+    setGainVal(preset.gainLevel);
+    setCutoffVal(preset.cutoffFreq);
+    setTimeVal(preset.delayTime);
+
+    // Immediately update audio nodes 
+    if (gainNode.current) {
+      gainNode.current.gain.value = preset.boostEngaged ? preset.gainLevel * 1.5 : 1;
+    }
+    if (filterNode.current) {
+      filterNode.current.type = preset.filterEngaged ? "lowpass" : "allpass";
+      filterNode.current.frequency.value = preset.cutoffFreq * 2000;
+    }
+    if (delayNode.current) {
+      delayNode.current.delayTime.value = preset.delayTime;
+    }
+    if (feedbackNode.current) {
+      feedbackNode.current.gain.value = preset.delayEngaged ? decayVal : 0;
+    }
+  }, [decayVal]);
 
   return (
     <div className="relative mx-auto max-w-7xl p-6 flex flex-col items-center min-h-screen">
@@ -204,8 +278,18 @@ export default function Home() {
 
             {/* Knobs */}
             <div className="my-8 grid grid-cols-2 gap-4 justify-items-center">
-              <Knob label="Gain" color="#fcd34d" onValueChange={(v) => gainNode.current && (gainNode.current.gain.value = v)} /> 
-              <Knob label="Level" color="#fcd34d" />
+              <Knob 
+                label="Gain" 
+                color="#fcd34d" 
+                value={gainVal}
+                onValueChange={(v) => setGainVal(v)} 
+              /> 
+              <Knob 
+                label="Level" 
+                color="#fcd34d" 
+                value={levelVal}
+                onValueChange={(v) => setLevelVal(v)}
+              />
             </div>
 
             {/* Stomp Switch */}
@@ -229,8 +313,18 @@ export default function Home() {
 
             {/* Knobs */}
             <div className="my-8 grid grid-cols-2 gap-4 justify-items-center">
-              <Knob label="Cutoff" color="#67e8f9" onValueChange={(v) => filterNode.current && (filterNode.current.frequency.value = v * 2000)} />
-              <Knob label="Reso" color="#67e8f9" onValueChange={(v) => filterNode.current && (filterNode.current.Q.value = v * 20)} />
+              <Knob 
+                label="Cutoff" 
+                color="#67e8f9" 
+                value={cutoffVal}
+                onValueChange={(v) => setCutoffVal(v)} 
+              />
+              <Knob 
+                label="Reso" 
+                color="#67e8f9" 
+                value={resoVal}
+                onValueChange={(v) => setResoVal(v)} 
+              />
             </div>
 
             {/* Engage Switch */}
@@ -254,8 +348,18 @@ export default function Home() {
 
             {/* Knobs */}
             <div className="my-8 grid grid-cols-2 gap-4 justify-items-center">
-              <Knob label="Time" color="#d8b4fe" onValueChange={(v) => delayNode.current && (delayNode.current.delayTime.value = v)} /> 
-              <Knob label="Decay" color="#d8b4fe" onValueChange={(v) => feedbackNode.current && (feedbackNode.current.gain.value = v)} />
+              <Knob 
+                label="Time" 
+                color="#d8b4fe" 
+                value={timeVal}
+                onValueChange={(v) => setTimeVal(v)} 
+              /> 
+              <Knob 
+                label="Decay" 
+                color="#d8b4fe" 
+                value={decayVal}
+                onValueChange={(v) => setDecayVal(v)} 
+              />
             </div>
 
             {/* Engage Switch */}
@@ -274,13 +378,7 @@ export default function Home() {
       {/* AI Chatbox */}
       <div className="relative z-10 w-full max-w-xl mt-8">
         <ChatBox 
-          onApplyPreset={(preset) => {
-            setActivePedals({
-              boost: preset.boostEngaged,
-              filter: preset.filterEngaged,
-              delay: preset.delayEngaged,
-            });
-          }} 
+          onApplyPreset={handleApplyPreset} 
         />
       </div>
     </div>

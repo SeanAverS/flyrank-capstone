@@ -7,7 +7,14 @@ import { useRef, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ChatBoxProps {
-  onApplyPreset?: (preset: { boostEngaged: boolean; filterEngaged: boolean; delayEngaged: boolean }) => void;
+  onApplyPreset?: (preset: { 
+    boostEngaged: boolean; 
+    gainLevel: number;
+    filterEngaged: boolean; 
+    cutoffFreq: number;
+    delayEngaged: boolean;
+    delayTime: number;
+  }) => void;
   forcedState?: "success" | "error" | null;
 }
 
@@ -17,6 +24,7 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
   const [manualError, setManualError] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const lastAppliedToolRef = useRef<string | null>(null);
   const isLoading = status === "streaming" || status === "submitted";
 
   const handleScroll = () => {
@@ -50,15 +58,7 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
       return;
     }
 
-    if (onApplyPreset) {
-      const lower = textInput.toLowerCase();
-      if (lower.includes("indie") || lower.includes("preset") || lower.includes("tone")) {
-        onApplyPreset({ boostEngaged: true, filterEngaged: true, delayEngaged: true });
-      } else {
-        onApplyPreset({ boostEngaged: true, filterEngaged: false, delayEngaged: true });
-      }
-    }
-
+    // AI route message handler
     sendMessage({ role: "user", parts: [{ type: "text", text: textInput }] });
     setTextInput("");
   };
@@ -100,7 +100,7 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
             <p className="font-semibold text-slate-200">No Presets Yet</p>
             <p className="text-xs max-w-xs">
               Example Prompt:{" "}
-              <span className="text-amber-400 font-medium">"Give me an indie rock preset"</span>
+              <span className="text-amber-400 font-medium">"Give me an ambient preset"</span>
             </p>
           </div>
         )}
@@ -116,17 +116,29 @@ export default function ChatBox({ onApplyPreset, forcedState }: ChatBoxProps) {
                 {!m.parts && <span>{typeof m.content === "string" ? m.content : JSON.stringify(m.content)}</span>}
 
                 {m.parts && m.parts.map((part: any, index: number) => {
-                  if (part.type === "text") {
+                  if (part.type === "text" || typeof part.text === "string") {
                     return <span key={index}>{part.text}</span>;
                   }
 
                   // handle text or tool invocation
-                  const isToolPart = part.type === "tool-suggestPedalPreset" || part.type === "tool-invocation" || part.toolName === "suggestPedalPreset";
-                  
+                  const isToolPart = 
+                    part.type?.includes("tool") || 
+                    part.type === "tool-invocation" || 
+                    part.toolName || 
+                    part.args || 
+                    part.input;
+
                   if (isToolPart) {
-                    const state = part.state || (part.output ? "result" : "call");
+                    const state = part.state || (part.output || part.result ? "result" : "call");
                     const result = part.output || part.result;
                     const inputData = part.input || part.args;
+                    const toolCallId = part.toolCallId || index;
+
+                    // Apply preset if result is valid
+                    if ((state === "result" || result) && result?.preset && onApplyPreset && lastAppliedToolRef.current !== toolCallId) {
+                      lastAppliedToolRef.current = toolCallId;
+                      onApplyPreset(result.preset);
+                    }
 
                     return (
                       <div key={index} className="mt-2 p-3 bg-slate-900/90 border border-amber-500/40 rounded-xl min-h-[80px]">
