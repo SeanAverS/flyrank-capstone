@@ -57,10 +57,10 @@ function Knob({ label, color, value, onValueChange }: KnobProps) {
     const centerX = currentPos.left + currentPos.width / 2;
     const centerY = currentPos.top + currentPos.height / 2;
     
-    // adjuster: calculate angle between center of knob and current mouse click (in radians) 
+    // calculate angle of mouse click
     const radians = Math.atan2(event.clientY - centerY, event.clientX - centerX);
     
-    // degree conversion + rotate coordinates so knob top = 0 degrees
+    // degree conversion
     const clickDegrees = (radians * (180 / Math.PI)) + 90;
     
     // detect knob rotation 
@@ -117,7 +117,7 @@ export default function Home() {
     const ctx = new window.AudioContext();
     audioContext.current = ctx;
 
-    // Audio element with local file ('/loop.mp3')
+    // Access local audio file
     const audioEl = new Audio('/loop.mp3');
     audioEl.loop = true;
     audioEl.crossOrigin = "anonymous";
@@ -137,7 +137,7 @@ export default function Home() {
     delay.delayTime.value = DEFAULT_PRESET.timeVal;
     feedback.gain.value = DEFAULT_PRESET.delay ? DEFAULT_PRESET.decayVal : 0;
 
-    // Connect chain: source -> gain -> filter -> delay -> destination (+ feedback loop)
+    // Pedal connection chain
     source.connect(gain);
     gain.connect(filter);
     filter.connect(delay);
@@ -156,7 +156,7 @@ export default function Home() {
     };
   }, []);
 
-  // Handle Play/Stop for the real audio sample
+  // Handle Play/Stop for audio 
   useEffect(() => {
     if (!audioElement.current || !audioContext.current) return;
 
