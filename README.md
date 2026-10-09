@@ -21,7 +21,7 @@ A group of guitar pedals that can manipulate sound loops. This application is op
 - **Styling:** Tailwind CSS
 - **Deployment:** Vercel
 
-## Environment Variables (`.env.local`)
+## Environment Variables
 | Variable | Description | Required |
 | :--- | :--- | :--- |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | API key for Gemini LLM-powered preset generation | Yes |
